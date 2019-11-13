@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Spiderman",
+    "realName": "Peter Parker",
+    "thumbnailUrl": "http://i.annihil.us/u/prod/marvel/i/mg/3/50/526548a343e4b/standard_fantastic.jpg",
+    "shortBio": "With spider-like abilities, science genius Peter Parker swings above it all as Spider-Man, costumed champion of the innocent who lives and fights with the wisdom of “With Great Power Comes Great Responsibility!”"
+  },
+  {
+    "id": 2,
+    "name": "Ironman",
+    "realName": "Tomy Stark",
+    "thumbnailUrl": "http://i.annihil.us/u/prod/marvel/i/mg/9/c0/527bb7b37ff55/standard_fantastic.jpg",
+    "shortBio": "Wounded, captured and forced to build a weapon by his enemies, billionaire industrialist Tony Stark instead created an advanced suit of armor to save his life and escape captivity. Now with a new outlook on life, Tony uses his money and intelligence to make the world a safer, better place as Iron Man."
+  },
+  {
+    "id": 3,
+    "name": "Captain America",
+    "realName": "Steve Rodgers",
+    "thumbnailUrl": "http://i.annihil.us/u/prod/marvel/i/mg/3/50/537ba56d31087/standard_fantastic.jpg",
+    "shortBio": "Vowing to serve his country any way he could, young Steve Rogers took the super soldier serum to become America's one-man army. Fighting for the red, white and blue for over 60 years, Captain America is the living, breathing symbol of freedom and liberty."
+  },
+  {
+    "id": 4,
+    "name": "Hulk",
+    "realName": "Bruce Banner",
+    "thumbnailUrl": "http://i.annihil.us/u/prod/marvel/i/mg/5/a0/538615ca33ab0/standard_fantastic.jpg",
+    "shortBio": "Caught in a gamma bomb explosion while trying to save the life of a teenager, Dr. Bruce Banner was transformed into the incredibly powerful creature called the Hulk. An all too often misunderstood hero, the angrier the Hulk gets, the stronger the Hulk gets."
+  }
+]

@@ -7,27 +7,129 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Security.Claims;
+using System.Linq;
+using Microsoft.Identity.Client;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 
 namespace M365.DevBootcamp2019.Marvel
 {
     public static class Heroes
     {
-        [FunctionName("Heroes")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("Claims")]
+        public static IActionResult GetClaims(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+            ExecutionContext executionContext,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("Getting user claims!");
 
-            string name = req.Query["name"];
+            var user = req.HttpContext.User;
+            var identity = user.Identity as ClaimsIdentity;
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            var claims = from c in identity?.Claims
+                         select new ClaimModel
+                         {
+                             Subject = c.Subject.Name,
+                             Type = c.Type,
+                             Value = c.Value
+                         };
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            return new OkObjectResult(claims);
         }
+
+        [FunctionName("Heroes")]
+        public static async Task<IActionResult> GetHeroes(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+            ExecutionContext executionContext,
+            ILogger log)
+        {
+            log.LogInformation("Getting super heroes list!");
+
+            var heroesFilePath = $"{executionContext.FunctionAppDirectory}/heroes.json";
+
+            var requestBody = await new StreamReader(heroesFilePath).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+
+            return new OkObjectResult(data);
+        }
+
+        [FunctionName("GetMeOnGraph")]
+        public static async Task<IActionResult> GetMeOnGraph([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]HttpRequest req, ILogger log)
+        {
+            try
+            {
+                string ClientId = Environment.GetEnvironmentVariable("ClientId", EnvironmentVariableTarget.Process);
+                string ClientSecret = Environment.GetEnvironmentVariable("ClientSecret", EnvironmentVariableTarget.Process);
+
+                var tenantId = req.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
+
+                if (string.IsNullOrEmpty(tenantId))
+                {
+                    tenantId = Environment.GetEnvironmentVariable("TenantId", EnvironmentVariableTarget.Process); //For some reason, in localhost only one claim is returned
+                }
+
+                string authority = $"https://login.microsoftonline.com/{tenantId}";
+
+                var userImpersonationAccessToken = req.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                log.LogInformation("AccessToken: {0}", userImpersonationAccessToken);
+
+                var app = ConfidentialClientApplicationBuilder.Create(ClientId)
+                   .WithClientSecret(ClientSecret)
+                   .WithAuthority(authority)
+                   .Build();
+
+                UserAssertion userAssertion = new UserAssertion(userImpersonationAccessToken);
+
+                var authResult = await app.AcquireTokenOnBehalfOf(
+                    new string[] { "https://graph.microsoft.com/.default" }, 
+                    userAssertion).ExecuteAsync();
+
+                var graphAccessToken = authResult.AccessToken;
+                log.LogInformation("Token OnBehalfOf: {0}", graphAccessToken);
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", graphAccessToken);
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                var request = new HttpRequestMessage(HttpMethod.Get, $"https://graph.microsoft.com/v1.0/me");
+
+                var response = await httpClient.SendAsync(request);
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                var user = JsonConvert.DeserializeObject<GraphUser>(content);
+
+                return new OkObjectResult(user);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Something went wrong");
+                throw;
+            }
+        }
+    }
+
+    public class ClaimModel
+    {
+        public string Subject { get; set; }
+        public string Type { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class GraphUser
+    {
+        public string DisplayName { get; set; }
+        public string GivenName { get; set; }
+        public string JobTitle { get; set; }
+        public string Mail { get; set; }
+        public string MobilePhone { get; set; }
+        public object OfficeLocation { get; set; }
+        public string PreferredLanguage { get; set; }
+        public string Surname { get; set; }
+        public string UserPrincipalName { get; set; }
+        public string Id { get; set; }
     }
 }
