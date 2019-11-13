@@ -110,6 +110,35 @@ namespace M365.DevBootcamp2019.Marvel
                 throw;
             }
         }
+
+        [FunctionName("GraphMeBinding")]
+        public static async Task<IActionResult> GraphMeBinding(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]HttpRequest req,
+            [Token(
+                Identity = TokenIdentityMode.UserFromRequest,
+                IdentityProvider = "AAD",
+                Resource = "https://graph.microsoft.com")] string graphToken, 
+            ILogger log)
+        {
+            if (string.IsNullOrEmpty(graphToken))
+            {
+                throw new ArgumentNullException("Token", "Graph Token is empty, ensure you´re running the Function from the cloud and the Graph Binding has been configured");
+            }
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", graphToken);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://graph.microsoft.com/v1.0/me");
+
+            var response = await client.SendAsync(request);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var user = JsonConvert.DeserializeObject<GraphUser>(content);
+
+            return new OkObjectResult(user);
+        }
     }
 
     public class ClaimModel
