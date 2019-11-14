@@ -1,7 +1,7 @@
 declare interface IMarvelHeroesWebPartStrings {
   PropertyPaneDescription: string;
   BasicGroupName: string;
-  DescriptionFieldLabel: string;
+  ApiEndpointFieldLabel: string;
 }
 
 declare module 'MarvelHeroesWebPartStrings' {

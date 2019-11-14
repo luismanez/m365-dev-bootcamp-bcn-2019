@@ -21,7 +21,7 @@
     "description": { "default": "List our best super heroes" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "MarvelHeroes"
+      "apiEndpoint": "https://marvel-api.azurewebsites.net/api/Heroes"
     }
   }]
 }

@@ -12,7 +12,7 @@ import MarvelHeroes from './components/MarvelHeroes';
 import { IMarvelHeroesProps } from './components/IMarvelHeroesProps';
 
 export interface IMarvelHeroesWebPartProps {
-  description: string;
+  apiEndpoint: string;
 }
 
 export default class MarvelHeroesWebPart extends BaseClientSideWebPart<IMarvelHeroesWebPartProps> {
@@ -21,7 +21,8 @@ export default class MarvelHeroesWebPart extends BaseClientSideWebPart<IMarvelHe
     const element: React.ReactElement<IMarvelHeroesProps > = React.createElement(
       MarvelHeroes,
       {
-        description: this.properties.description
+        apiEndpoint: this.properties.apiEndpoint,
+        context: this.context
       }
     );
 
@@ -47,8 +48,8 @@ export default class MarvelHeroesWebPart extends BaseClientSideWebPart<IMarvelHe
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
+                PropertyPaneTextField('apiEndpoint', {
+                  label: strings.ApiEndpointFieldLabel
                 })
               ]
             }

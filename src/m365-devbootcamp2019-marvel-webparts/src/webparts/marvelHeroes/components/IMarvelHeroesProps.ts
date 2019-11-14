@@ -1,3 +1,6 @@
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+
 export interface IMarvelHeroesProps {
-  description: string;
+  apiEndpoint: string;
+  context: WebPartContext;
 }
