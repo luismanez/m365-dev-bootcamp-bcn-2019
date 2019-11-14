@@ -1,25 +1,56 @@
 import * as React from 'react';
 import styles from './FunctionFlowsToGraphTester.module.scss';
 import { IFunctionFlowsToGraphTesterProps } from './IFunctionFlowsToGraphTesterProps';
-import { escape } from '@microsoft/sp-lodash-subset';
+import { GraphService } from '../../../services';
+import { IFunctionFlowsToGraphTesterState } from './IFunctionFlowsToGraphTesterState';
+import { Shimmer, ShimmerElementType } from 'office-ui-fabric-react';
+import { IPersonaSharedProps, Persona, PersonaSize, PersonaPresence } from 'office-ui-fabric-react/lib/Persona';
 
-export default class FunctionFlowsToGraphTester extends React.Component<IFunctionFlowsToGraphTesterProps, {}> {
+export default class FunctionFlowsToGraphTester extends React.Component<IFunctionFlowsToGraphTesterProps, IFunctionFlowsToGraphTesterState> {
+
+  private _graphService: GraphService;
+
+  constructor(props: IFunctionFlowsToGraphTesterProps) {
+    super(props);  
+
+    this._graphService = new GraphService(this.props.context.aadHttpClientFactory);
+
+    this.state = {
+      me: null
+    };  
+  }
+
+  public componentDidMount(): void {
+    this._graphService.getMe().then(me => {
+      this.setState({
+        me: me
+      });
+    });
+  }
+
   public render(): React.ReactElement<IFunctionFlowsToGraphTesterProps> {
+
+    if(this.state.me === null) {
+      return(
+        <Shimmer
+          shimmerElements={[
+            { type: ShimmerElementType.circle, width: 100, height: 100 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, width: '100%', height: 100 }
+          ]}
+        />
+      );
+    }    
+
+    const mePersona: IPersonaSharedProps = {
+      text: this.state.me.displayName,
+      secondaryText: this.state.me.jobTitle,
+      tertiaryText: this.state.me.mail,
+      optionalText: 'Available at 4:00pm'
+    };
+
     return (
-      <div className={ styles.functionFlowsToGraphTester }>
-        <div className={ styles.container }>
-          <div className={ styles.row }>
-            <div className={ styles.column }>
-              <span className={ styles.title }>Welcome to SharePoint!</span>
-              <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-              <p className={ styles.description }>{escape(this.props.description)}</p>
-              <a href="https://aka.ms/spfx" className={ styles.button }>
-                <span className={ styles.label }>Learn more</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Persona {...mePersona} size={PersonaSize.large} hidePersonaDetails={false} />
     );
   }
 }
