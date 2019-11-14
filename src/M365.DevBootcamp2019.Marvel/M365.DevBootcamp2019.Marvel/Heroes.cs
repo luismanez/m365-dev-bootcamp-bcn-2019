@@ -12,7 +12,6 @@ using System.Linq;
 using Microsoft.Identity.Client;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
 
 namespace M365.DevBootcamp2019.Marvel
 {
@@ -110,26 +109,5 @@ namespace M365.DevBootcamp2019.Marvel
                 throw;
             }
         }        
-    }
-
-    public class ClaimModel
-    {
-        public string Subject { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class GraphUser
-    {
-        public string DisplayName { get; set; }
-        public string GivenName { get; set; }
-        public string JobTitle { get; set; }
-        public string Mail { get; set; }
-        public string MobilePhone { get; set; }
-        public object OfficeLocation { get; set; }
-        public string PreferredLanguage { get; set; }
-        public string Surname { get; set; }
-        public string UserPrincipalName { get; set; }
-        public string Id { get; set; }
     }
 }

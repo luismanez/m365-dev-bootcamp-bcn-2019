@@ -21,7 +21,7 @@ export default class FunctionFlowsToGraphTesterWebPart extends BaseClientSideWeb
     const element: React.ReactElement<IFunctionFlowsToGraphTesterProps > = React.createElement(
       FunctionFlowsToGraphTester,
       {
-        description: this.properties.description
+        context: this.context
       }
     );
 

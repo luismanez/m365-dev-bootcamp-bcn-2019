@@ -1,10 +1,11 @@
 import * as React from 'react';
 import styles from './MarvelHeroes.module.scss';
 import { IMarvelHeroesProps } from './IMarvelHeroesProps';
-import { escape } from '@microsoft/sp-lodash-subset';
 import { IMarvelHeroesState } from './IMarvelHeroesState';
 import { HeroeService } from '../../../services';
 import { IHeroe } from '../../../model';
+import HeroesList from './HeroesList';
+import { Link, MessageBar, MessageBarType, Shimmer, ShimmerElementType } from 'office-ui-fabric-react';
 
 export default class MarvelHeroes extends React.Component<IMarvelHeroesProps, IMarvelHeroesState> {
 
@@ -36,22 +37,34 @@ export default class MarvelHeroes extends React.Component<IMarvelHeroesProps, IM
 
   public render(): React.ReactElement<IMarvelHeroesProps> {
 
+    if (this.state.oops !== null) {
+      return (
+        <MessageBar messageBarType={MessageBarType.error} isMultiline={false} dismissButtonAriaLabel="Close">
+          {this.state.oops}
+          <Link href="www.bing.com" target="_blank">
+                Visit our website.
+          </Link>
+        </MessageBar>);
+    }
+
+    if(this.state.heroes.length <= 0) {
+      return(
+        <Shimmer
+          shimmerElements={[
+            { type: ShimmerElementType.line, width: 246, height: 246 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, width: 246, height: 246 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, width: 246, height: 246 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, width: '100%', height: 246 }
+          ]}
+        />
+      );
+    }
 
     return (
-      <div className={ styles.marvelHeroes }>
-        <div className={ styles.container }>
-          <div className={ styles.row }>
-            <div className={ styles.column }>
-              <span className={ styles.title }>Welcome to SharePoint!</span>
-              <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-              <p className={ styles.description }>{escape(this.props.apiEndpoint)}</p>
-              <a href="https://aka.ms/spfx" className={ styles.button }>
-                <span className={ styles.label }>Learn more</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <HeroesList heroes={this.state.heroes} />
     );
   }
 }
